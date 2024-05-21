@@ -28,7 +28,7 @@ void consume(Channel<std::string>::Consumer consumer)
 
         if (message.has_value())
         {
-            std::cout << "Received: " << message.value() << std::endl;
+            std::cout << "Consumer Received: " << message.value() << std::endl;
         }
     }
 }

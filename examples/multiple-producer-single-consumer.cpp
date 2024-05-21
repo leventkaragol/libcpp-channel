@@ -13,7 +13,7 @@ void produce(Channel<std::string>::Producer producer, const std::string& name)
         i++;
 
         // Sending string message to the consumer with producer name
-        producer.send(name + "-Message " + std::to_string(i));
+        producer.send(name + " Message " + std::to_string(i));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
@@ -28,7 +28,7 @@ void consume(Channel<std::string>::Consumer consumer)
 
         if (message.has_value())
         {
-            std::cout << "Received: " << message.value() << std::endl;
+            std::cout << "Consumer Received: " << message.value() << std::endl;
         }
     }
 }

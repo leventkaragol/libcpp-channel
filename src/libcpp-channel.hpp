@@ -37,66 +37,100 @@ SOFTWARE.
 #include <optional>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
-namespace lklibs {
-
+namespace lklibs
+{
     template <typename T>
-    class Channel {
+    class Channel
+    {
     private:
-        struct Data {
-            std::queue<T> queue_;
+        struct Data
+        {
+            std::queue<std::shared_ptr<T>> queue_;
             std::mutex mutex_;
             std::condition_variable cond_var_;
+            std::unordered_map<int, std::queue<std::shared_ptr<T>>> consumer_queues_;
+            int consumer_id_counter = 0;
         };
 
         std::shared_ptr<Data> data_;
 
     public:
-        Channel() : data_(std::make_shared<Data>()) {}
+        Channel() : data_(std::make_shared<Data>())
+        {
+        }
 
-        class Producer {
+        class Producer
+        {
         public:
-            explicit Producer(std::shared_ptr<Data> data) : data_(std::move(data)) {}
+            explicit Producer(std::shared_ptr<Data> data) : data_(std::move(data))
+            {
+            }
 
-            void send(T value) {
+            void send(T value)
+            {
+                auto message = std::make_shared<T>(std::move(value));
 
                 std::unique_lock<std::mutex> lock(data_->mutex_);
 
-                data_->queue_.push(std::move(value));
+                data_->queue_.push(message);
+
+                // Broadcast message to all consumers
+                for (auto& [id, q] : data_->consumer_queues_)
+                {
+                    q.push(message);
+                }
 
                 lock.unlock();
 
-                data_->cond_var_.notify_one();
+                data_->cond_var_.notify_all();
             }
 
         private:
             std::shared_ptr<Data> data_;
         };
 
-        class Consumer {
+        class Consumer
+        {
         public:
-            explicit Consumer(std::shared_ptr<Data> data) : data_(std::move(data)) {}
-
-            std::optional<T> receive()            {
-
+            explicit Consumer(std::shared_ptr<Data> data): data_(std::move(data)), consumer_id_(data_->consumer_id_counter++)
+            {
                 std::unique_lock<std::mutex> lock(data_->mutex_);
 
-                data_->cond_var_.wait(lock, [this]() { return !data_->queue_.empty(); });
+                data_->consumer_queues_[consumer_id_] = std::queue<std::shared_ptr<T>>();
+            }
 
-                if (data_->queue_.empty()) {
+            ~Consumer()
+            {
+                std::unique_lock<std::mutex> lock(data_->mutex_);
 
+                data_->consumer_queues_.erase(consumer_id_);
+            }
+
+            std::optional<T> receive()
+            {
+                std::unique_lock<std::mutex> lock(data_->mutex_);
+
+                auto& q = data_->consumer_queues_[consumer_id_];
+
+                data_->cond_var_.wait(lock, [&q]() { return !q.empty(); });
+
+                if (q.empty())
+                {
                     return std::nullopt; // Spurious wakeup protection
-               }
+                }
 
-                T value = std::move(data_->queue_.front());
+                auto message = q.front();
 
-                data_->queue_.pop();
+                q.pop();
 
-                return value;
+                return *message;
             }
 
         private:
             std::shared_ptr<Data> data_;
+            int consumer_id_;
         };
 
         Producer getProducer()
