@@ -4,7 +4,7 @@
 
 using namespace lklibs;
 
-void producer(Channel<std::string>::Producer producer)
+void produce(Channel<std::string>::Producer producer)
 {
     auto i = 0;
 
@@ -15,11 +15,11 @@ void producer(Channel<std::string>::Producer producer)
         // Sending string message to the consumer
         producer.send("Message " + std::to_string(i));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
-void consumer(Channel<std::string>::Consumer consumer)
+void consume(Channel<std::string>::Consumer consumer)
 {
     while (true)
     {
@@ -43,10 +43,10 @@ int main()
     auto consumer = channel.getConsumer();
 
     // Passing producer object to the first thread
-    std::thread producer_thread(::producer, std::move(producer));
+    std::thread producer_thread(::produce, std::move(producer));
 
     // Passing consumer object to the second thread
-    std::thread consumer_thread(::consumer, std::move(consumer));
+    std::thread consumer_thread(::consume, std::move(consumer));
 
     producer_thread.join();
     consumer_thread.join();
