@@ -1,6 +1,6 @@
 /*
 
-Thread safe message channel library for C++ (17+)
+Thread-safe generic message channel library for C++ (17+)
 version 1.0.0
 https://github.com/leventkaragol/libcpp-channel
 
