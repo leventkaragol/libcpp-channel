@@ -43,13 +43,13 @@ int main()
     auto consumer = channel.getConsumer();
 
     // Passing producer object to the first thread
-    std::thread producer_thread(::produce, std::move(producer));
+    std::thread produce_thread(::produce, std::move(producer));
 
     // Passing consumer object to the second thread
-    std::thread consumer_thread(::consume, std::move(consumer));
+    std::thread consume_thread(::consume, std::move(consumer));
 
-    producer_thread.join();
-    consumer_thread.join();
+    produce_thread.join();
+    consume_thread.join();
 
     return 0;
 }

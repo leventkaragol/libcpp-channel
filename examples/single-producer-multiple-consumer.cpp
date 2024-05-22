@@ -12,7 +12,7 @@ void produce(Channel<std::string>::Producer producer)
     {
         i++;
 
-        // Sending string message to the consumer
+        // Sending string message to all consumers
         producer.send("Message " + std::to_string(i));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -44,15 +44,15 @@ int main()
     auto consumer2 = channel.getConsumer();
 
     // Passing producer object to the first thread
-    std::thread producer_thread(::produce, std::move(producer));
+    std::thread produce_thread(::produce, std::move(producer));
 
-    // Passing consumer object to the second thread
-    std::thread consumer1_thread(::consume, std::move(consumer1), "Consumer1");
-    std::thread consumer2_thread(::consume, std::move(consumer2), "Consumer2");
+    // Passing consumer objects to other threads
+    std::thread consume1_thread(::consume, std::move(consumer1), "Consumer1");
+    std::thread consume2_thread(::consume, std::move(consumer2), "Consumer2");
 
-    producer_thread.join();
-    consumer1_thread.join();
-    consumer2_thread.join();
+    produce_thread.join();
+    consume1_thread.join();
+    consume2_thread.join();
 
     return 0;
 }
