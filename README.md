@@ -1,6 +1,6 @@
 # libcpp-channel
 
-Thread safe message channel library for C++ (17+)
+Thread-safe generic message channel library for C++ (17+)
 
 [![linux](https://github.com/leventkaragol/libcpp-channel/actions/workflows/linux.yml/badge.svg)](https://github.com/leventkaragol/libcpp-channel/actions/workflows/linux.yml)
 [![windows](https://github.com/leventkaragol/libcpp-channel/actions/workflows/windows.yml/badge.svg)](https://github.com/leventkaragol/libcpp-channel/actions/workflows/windows.yml)
@@ -24,7 +24,22 @@ Thread safe message channel library for C++ (17+)
 
 ## What is the channel used for and why do I need it?
 
+In developed applications, there is often a need to exchange messages between different parts of the code. When these 
+code blocks are not directly connected and run on separate threads, managing communication between them becomes 
+more challenging, especially if there are multiple producers and consumers of messages. In such cases, channels are 
+structures used to facilitate communication between independent blocks of code in a thread-safe manner. While they may 
+resemble events in appearance, their operating logic is more akin to message queues.
 
+Here are a few situations where you might need channels:
+
+* **Thread-Safe Data Exchange is Required**: When you need to ensure thread-safe communication between multiple threads
+* **Decoupling Producers and Consumers**: Decouple the producers and consumers of data, allowing them to operate independently
+* **Managing Multiple Producers and Consumers**: When you have multiple threads producing and consuming data, and you need a mechanism to manage their interactions
+* **Implementing FIFO Message Queues**: Ensure that messages are processed in the order they were received
+* **Simplifying Synchronization**: Simplify the synchronization logic in your application, avoiding complex locking mechanisms
+* **Improving Parallelism**: Distribute tasks across multiple threads, enhancing parallelism and performance
+* **Handling Real-Time Data**: Manage the quick and secure transmission of real-time data between threads
+* **Designing Scalable Systems**: Build scalable systems where components can be added or removed without affecting other parts of the system
 
 ## How to add it to my project?
 
@@ -46,7 +61,8 @@ target_link_libraries(myProject PRIVATE libcpp-channel)
 
 ## How to use? (Single Producer & Single Consumer)
 
-As an easiest usage example, sending a message from a single producer and receiving the message by a single consumer can be done as follows.
+As an easiest usage example, sending a message from a single producer and receiving the message 
+by a single consumer can be done as follows.
 
 ```cpp
 #include "libcpp-channel.hpp"
@@ -108,7 +124,8 @@ int main()
 
 ## How to use? (Single Producer & Multiple Consumers)
 
-In the example below, the message sent from a single producer is received concurrently by two different consumers.
+In the example below, the message sent from a single producer is received concurrently by two 
+different consumers.
 
 ```cpp
 #include "libcpp-channel.hpp"
@@ -173,7 +190,8 @@ int main()
 
 ## How to use? (Multiple Producers & Single Consumer)
 
-As a different use case, here is an example of two different producers sending messages to the same channel and a single consumer receiving those messages.
+As a different use case, here is an example of two different producers sending messages to the 
+same channel and a single consumer receiving those messages.
 
 ```cpp
 #include "libcpp-channel.hpp"
@@ -238,7 +256,8 @@ int main()
 
 ## How to use? (Multiple Producers & Multiple Consumers)
 
-In the example below, two different producers send messages to the same channel independently of each other, while two different consumers receive these messages independently and concurrently.
+In the example below, two different producers send messages to the same channel independently of 
+each other, while two different consumers receive these messages independently and concurrently.
 
 ```cpp
 #include "libcpp-channel.hpp"
