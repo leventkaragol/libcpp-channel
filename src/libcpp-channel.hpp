@@ -36,11 +36,15 @@ SOFTWARE.
 #include <condition_variable>
 #include <optional>
 #include <memory>
-#include <vector>
 #include <unordered_map>
 
 namespace lklibs
 {
+    /**
+     * @brief Thread-safe generic message channel
+     *
+     * @tparam T
+     */
     template <typename T>
     class Channel
     {
@@ -61,6 +65,10 @@ namespace lklibs
         {
         }
 
+        /**
+         * @brief Producer class to send messages to the channel
+         *
+         */
         class Producer
         {
         public:
@@ -68,6 +76,11 @@ namespace lklibs
             {
             }
 
+            /**
+             * @brief Send message to the channel
+             *
+             * @param value
+             */
             void send(T value)
             {
                 auto message = std::make_shared<T>(std::move(value));
@@ -91,6 +104,10 @@ namespace lklibs
             std::shared_ptr<Data> data_;
         };
 
+        /**
+         * @brief Consumer class to receive messages from the channel
+         *
+         */
         class Consumer
         {
         public:
@@ -108,6 +125,11 @@ namespace lklibs
                 data_->consumer_queues_.erase(consumer_id_);
             }
 
+            /**
+             * @brief Receive message from the channel
+             *
+             * @return std::optional<T>
+             */
             std::optional<T> receive()
             {
                 std::unique_lock<std::mutex> lock(data_->mutex_);
@@ -133,11 +155,21 @@ namespace lklibs
             int consumer_id_;
         };
 
+        /**
+         * @brief Get producer object which can be used to send messages
+         *
+         * @return Producer
+         */
         Producer getProducer()
         {
             return Producer(data_);
         }
 
+        /**
+         * @brief Get consumer object which can be used to receive messages
+         *
+         * @return Consumer
+         */
         Consumer getConsumer()
         {
             return Consumer(data_);
