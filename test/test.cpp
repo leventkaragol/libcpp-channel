@@ -15,6 +15,7 @@ void produce_once(Channel<std::string>::Producer producer, const std::string& me
 void consume_once(Channel<std::string>::Consumer consumer, std::string& out_message)
 {
     auto message = consumer.receive();
+
     if (message.has_value())
     {
         out_message = message.value();
@@ -26,6 +27,7 @@ void consume_multiple(Channel<std::string>::Consumer consumer, std::vector<std::
     for (int i = 0; i < message_count; ++i)
     {
         auto message = consumer.receive();
+
         if (message.has_value())
         {
             out_messages.push_back(message.value());
