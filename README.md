@@ -53,9 +53,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(myProject)
 
-add_executable(myProject main.cpp)
-
-target_link_libraries(myProject PRIVATE libcpp-channel)
+add_executable(myProject main.cpp libcpp-channel.hpp)
 
 ```
 
